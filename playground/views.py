@@ -1,8 +1,8 @@
 from django.shortcuts import render
-from store.models import Product, OrderItem
+from store.models import Product, Order, OrderItem
 
 
 def say_hello(request):
-    ordered_products = OrderItem.objects.values_list('product__title', flat=True).order_by('product__title').distinct()
+    queryset = Order.objects.select_related('customer').prefetch_related('orderitem_set__product').order_by('-placed_at')[:5]
 
-    return render(request, 'hello.html', {'name': 'Moeed', 'product_titles': list(ordered_products)})
+    return render(request, 'hello.html', {'name': 'Moeed', 'orders': list(queryset)})
