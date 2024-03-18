@@ -1,13 +1,8 @@
 from django.shortcuts import render
-from django.db.models import Q, F
-from django.http import HttpResponse
-from store.models import Product
+from store.models import Product, OrderItem
 
 
 def say_hello(request):
-    # 0, 1, 2, 3, 4
-    queryset = Product.objects.all()[:5]
-    # 5, 6, 7, 8, 9
-    queryset = Product.objects.all()[5:10]
+    ordered_products = OrderItem.objects.values_list('product__title', flat=True).order_by('product__title').distinct()
 
-    return render(request, 'hello.html', {'name': 'Moeed', 'products': list(queryset)})
+    return render(request, 'hello.html', {'name': 'Moeed', 'product_titles': list(ordered_products)})
