@@ -5,7 +5,9 @@ from store.models import Product
 
 
 def say_hello(request):
-    product = Product.objects.order_by('unit_price')[0]
-    product = Product.objects.earliest('unit_price')
+    # 0, 1, 2, 3, 4
+    queryset = Product.objects.all()[:5]
+    # 5, 6, 7, 8, 9
+    queryset = Product.objects.all()[5:10]
 
-    return render(request, 'hello.html', {'name': 'Moeed', 'product': product})
+    return render(request, 'hello.html', {'name': 'Moeed', 'products': list(queryset)})
