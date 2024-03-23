@@ -7,9 +7,9 @@
         {% endif %}
     </body>
     <ul>
-        {% for customer in customers %}
+        {% for product in products %}
         <li>
-            {{ customer.id }} - {{ customer.full_name }}
+            {{ product.id }} - {{ product.discounted_price }}
         </li>
         {% endfor %}
     </ul>
