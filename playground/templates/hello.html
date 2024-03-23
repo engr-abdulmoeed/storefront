@@ -7,9 +7,9 @@
         {% endif %}
     </body>
     <ul>
-        {% for product in products %}
+        {% for tag in tags %}
         <li>
-            {{ product.id }} - {{ product.discounted_price }}
+            {{ tag.id }} - {{ tag.label }}
         </li>
         {% endfor %}
     </ul>

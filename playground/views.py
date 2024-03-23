@@ -1,18 +1,18 @@
 from django.shortcuts import render
-from store.models import Product, Order, OrderItem, Customer
-from django.db.models import F, Func, Value, ExpressionWrapper, DecimalField
-from django.db.models.functions import Concat
+from django.contrib.contenttypes.models import ContentType
+from store.models import Product
+from tags.models import TaggedItem
 
 
 def say_hello(request):
-    # queryset = Customer.objects.annotate(full_name=Func(
-    #     F('first_name'), Value(' '), F('last_name'), function='CONCAT'))
+    content_type = ContentType.objects.get_for_model(Product)
 
-    # queryset = Customer.objects.annotate(
-    #     full_name=Concat('first_name', Value(' '), 'last_name', ))
+    queryset = (TaggedItem
+                    .objects.select_related('tag')
+                    .filter(
+                        content_type=content_type,
+                        object_id=1
+                    )
+                )
 
-    discounted_price = ExpressionWrapper(F('unit_price') * 0.8, DecimalField())
-
-    queryset = Product.objects.annotate(discounted_price=discounted_price)
-
-    return render(request, 'hello.html', {'name': 'Moeed', 'products': list(queryset)})
+    return render(request, 'hello.html', {'name': 'Moeed', 'tags': queryset})
