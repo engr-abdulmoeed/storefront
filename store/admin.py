@@ -8,6 +8,18 @@ from django.utils.html import format_html, urlencode
 from django.urls import reverse
 
 
+class InventoryFilter(admin.SimpleListFilter):
+    title = 'inventory'
+    parameter_name = 'inventory'
+
+    def lookups(self, request, model_admin) -> list[tuple[Any, str]]:
+        return [('<10', 'Low')]
+
+    def queryset(self, request: Any, queryset: QuerySet[Product]) -> QuerySet[Product] | None:
+        if self.value() == '<10':
+            return queryset.filter(inventory__lt=10)
+
+
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
     list_display = ['title', 'unit_price',
@@ -15,6 +27,7 @@ class ProductAdmin(admin.ModelAdmin):
     list_editable = ['unit_price']
     list_per_page = 10
     list_select_related = ['collection']
+    list_filter = ['collection', 'last_update', InventoryFilter]
 
     def collection_title(self, product):
         return product.collection.title
@@ -33,6 +46,7 @@ class CustomerAdmin(admin.ModelAdmin):
     list_editable = ['membership']
     list_per_page = 10
     ordering = ['first_name', 'last_name']
+    search_fields = ['first_name__istartswith', 'last_name__istartswith']
 
     @admin.display(ordering='orders_count')
     def orders_count(self, customer):
