@@ -2,7 +2,7 @@ from typing import Any
 from django.contrib import admin
 from django.db.models.query import QuerySet
 from django.http import HttpRequest
-from store.models import Collection, Product, Customer, Order
+from store.models import Collection, OrderItem, Product, Customer, Order
 from django.db.models import Count
 from django.utils.html import format_html, urlencode
 from django.urls import reverse
@@ -31,6 +31,7 @@ class ProductAdmin(admin.ModelAdmin):
     list_select_related = ['collection']
     list_filter = ['collection', 'last_update', InventoryFilter]
     actions = ['clear_inventory']
+    search_fields = ['title']
 
     def collection_title(self, product):
         return product.collection.title
@@ -67,10 +68,17 @@ class CustomerAdmin(admin.ModelAdmin):
         return super().get_queryset(request).annotate(orders_count=Count('order'))
 
 
+class OrderItemInline(admin.TabularInline):
+    autocomplete_fields = ['product']
+    model = OrderItem
+    extra = 0
+
+
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
     list_display = ['id', 'placed_at', 'customer']
     autocomplete_fields = ['customer']
+    inlines = [OrderItemInline]
 
 
 @admin.register(Collection)
