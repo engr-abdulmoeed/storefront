@@ -81,6 +81,11 @@ class OrderAdmin(admin.ModelAdmin):
     inlines = [OrderItemInline]
 
 
+@admin.register(OrderItem)
+class OrderItemAdmin(admin.ModelAdmin):
+    list_display = ['id', 'order', 'product', 'quantity', 'unit_price']
+
+
 @admin.register(Collection)
 class CollectionAdmin(admin.ModelAdmin):
     search_fields = ['title']
