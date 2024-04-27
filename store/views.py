@@ -2,8 +2,8 @@ from django.http import HttpRequest
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
-from store.models import OrderItem, Product, Collection
-from store.serializers import ProductSerializer, CollectionSerialzier
+from store.models import OrderItem, Product, Collection, Review
+from store.serializers import ProductSerializer, CollectionSerialzier, ReviewSerializer
 from django.shortcuts import get_object_or_404
 from rest_framework import status
 from django.db.models import Count
@@ -34,3 +34,8 @@ class CollectionViewSet(ModelViewSet):
             return Response(data='Collection can not be deleted because it includes one or more product.', status=status.HTTP_405_METHOD_NOT_ALLOWED)
         collection.delete()
         return Response('Collection Deleted', status=status.HTTP_204_NO_CONTENT)
+
+
+class ReviewViewSet(ModelViewSet):
+    queryset = Review.objects.all()
+    serializer_class = ReviewSerializer
