@@ -1,7 +1,7 @@
 from django.http import HttpRequest
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.generics import ListCreateAPIView
+from rest_framework.generics import ListCreateAPIView, RetrieveUpdateDestroyAPIView
 from store.models import Product, Collection
 from store.serializers import ProductSerializer, CollectionSerialzier
 from django.shortcuts import get_object_or_404
@@ -17,21 +17,12 @@ class ProductList(ListCreateAPIView):
         return {'request': self.request}
 
 
-class ProductDetail(APIView):
-    def get(self, request: HttpRequest, id: int) -> Response:
-        product = get_object_or_404(Product, pk=id)
-        serializer = ProductSerializer(product)
-        return Response(serializer.data)
+class ProductDetail(RetrieveUpdateDestroyAPIView):
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer
 
-    def put(self, request: HttpRequest, id: int) -> Response:
-        product = get_object_or_404(Product, pk=id)
-        serializer = ProductSerializer(instance=product, data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data)
-
-    def delete(self, request: HttpRequest, id: int) -> Response:
-        product = get_object_or_404(Product, pk=id)
+    def delete(self, request: HttpRequest, pk: int) -> Response:
+        product = get_object_or_404(Product, pk=pk)
         if product.orderitems.count() > 0:
             return Response(data='Product can not be deleted because it is associated with an OrderItem', status=status.HTTP_405_METHOD_NOT_ALLOWED)
         product.delete()
@@ -44,21 +35,10 @@ class CollectionList(ListCreateAPIView):
     serializer_class = CollectionSerialzier
 
 
-class CollectionDetail(APIView):
-    def get(self, request: HttpRequest, pk: int) -> Response:
-        collection = get_object_or_404(Collection.objects.annotate(
-            products_count=Count('products')).all(), pk=pk)
-        serializer = CollectionSerialzier(collection)
-        return Response(serializer.data)
-
-    def put(self, request: HttpRequest, pk: int) -> Response:
-        collection = get_object_or_404(Collection.objects.annotate(
-            products_count=Count('products')).all(), pk=pk)
-        serializer = CollectionSerialzier(
-            instance=collection, data=request.data)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-        return Response(serializer.data)
+class CollectionDetail(RetrieveUpdateDestroyAPIView):
+    queryset = Collection.objects.annotate(
+        products_count=Count('products')).all()
+    serializer_class = CollectionSerialzier
 
     def delete(self, request: HttpRequest, pk: int) -> Response:
         collection = get_object_or_404(Collection.objects.annotate(
