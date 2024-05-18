@@ -1,6 +1,8 @@
 from decimal import Decimal
+
 from rest_framework import serializers
-from store.models import Cart, Product, Collection, Review, CartItem
+
+from store.models import Cart, CartItem, Collection, Product, Review
 
 
 class CollectionSerializer(serializers.ModelSerializer):

@@ -16,8 +16,7 @@ Including another URLconf
 """
 import debug_toolbar
 from django.contrib import admin
-from django.urls import path, include
-
+from django.urls import include, path
 
 admin.site.site_header = 'Storefront Admin'
 admin.site.index_title = 'Admin'

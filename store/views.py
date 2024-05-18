@@ -1,16 +1,21 @@
+from django.db.models import Count
 from django.http import HttpRequest
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
-from django.db.models import Count
 from rest_framework import status
+from rest_framework.filters import OrderingFilter, SearchFilter
+from rest_framework.mixins import (CreateModelMixin, DestroyModelMixin,
+                                   RetrieveModelMixin)
 from rest_framework.response import Response
-from rest_framework.viewsets import ModelViewSet, GenericViewSet
-from rest_framework.filters import SearchFilter, OrderingFilter
-from rest_framework.mixins import CreateModelMixin, RetrieveModelMixin, DestroyModelMixin
+from rest_framework.viewsets import GenericViewSet, ModelViewSet
+
 from store.filters import ProductFilter
-from store.models import Cart, OrderItem, Product, Collection, Review, CartItem
+from store.models import Cart, CartItem, Collection, OrderItem, Product, Review
 from store.pagination import DefaultPagination
-from store.serializers import AddCartItemSerializer, CartSerializer, ProductSerializer, CollectionSerializer, ReviewSerializer, CartItemSerializer, UpdateCartItemSerializer
+from store.serializers import (AddCartItemSerializer, CartItemSerializer,
+                               CartSerializer, CollectionSerializer,
+                               ProductSerializer, ReviewSerializer,
+                               UpdateCartItemSerializer)
 
 
 class ProductViewSet(ModelViewSet):
@@ -28,7 +33,8 @@ class ProductViewSet(ModelViewSet):
     def destroy(self, request, *args, **kwargs):
         if OrderItem.objects.filter(product_id=kwargs['pk']).count() > 0:
             return Response(data='Product can not be deleted because it is associated with an OrderItem', status=status.HTTP_405_METHOD_NOT_ALLOWED)
-        return super().destroy(request, *args, **kwargs)
+        else:
+            return super().destroy(request, *args, **kwargs)
 
 
 class CollectionViewSet(ModelViewSet):
@@ -41,8 +47,9 @@ class CollectionViewSet(ModelViewSet):
             products_count=Count('products')).all(), pk=pk)
         if collection.products.count() > 0:
             return Response(data='Collection can not be deleted because it includes one or more product.', status=status.HTTP_405_METHOD_NOT_ALLOWED)
-        collection.delete()
-        return Response('Collection Deleted', status=status.HTTP_204_NO_CONTENT)
+        else:
+            collection.delete()
+            return Response('Collection Deleted', status=status.HTTP_204_NO_CONTENT)
 
 
 class ReviewViewSet(ModelViewSet):
