@@ -10,7 +10,7 @@ from rest_framework.mixins import CreateModelMixin, RetrieveModelMixin, DestroyM
 from store.filters import ProductFilter
 from store.models import Cart, OrderItem, Product, Collection, Review, CartItem
 from store.pagination import DefaultPagination
-from store.serializers import CartSerializer, ProductSerializer, CollectionSerialzier, ReviewSerializer, CartItemSerializer
+from store.serializers import AddCartItemSerializer, CartSerializer, ProductSerializer, CollectionSerializer, ReviewSerializer, CartItemSerializer
 
 
 class ProductViewSet(ModelViewSet):
@@ -34,7 +34,7 @@ class ProductViewSet(ModelViewSet):
 class CollectionViewSet(ModelViewSet):
     queryset = Collection.objects.annotate(
         products_count=Count('products')).all()
-    serializer_class = CollectionSerialzier
+    serializer_class = CollectionSerializer
 
     def delete(self, request: HttpRequest, pk: int) -> Response:
         collection = get_object_or_404(Collection.objects.annotate(
@@ -61,7 +61,14 @@ class CartViewSet(CreateModelMixin, RetrieveModelMixin, DestroyModelMixin, Gener
 
 
 class CartItemViewSet(ModelViewSet):
-    serializer_class = CartItemSerializer
+    def get_serializer_class(self):
+        if self.request.method == 'POST':
+            return AddCartItemSerializer
+        else:
+            return CartItemSerializer
+
+    def get_serializer_context(self):
+        return {'cart_id': self.kwargs['cart_pk']}
 
     def get_queryset(self):
         return CartItem.objects.select_related('product').filter(cart_id=self.kwargs['cart_pk'])
